@@ -1,0 +1,67 @@
+# -----------------------
+# Python
+# -----------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+*.egg-info/
+*.egg
+*.log
+
+# Virtual environments
+venv/
+.env/
+.env.*
+
+# -----------------------
+# macOS system files
+# -----------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Thumbnails, backups
+.DocumentRevisions-V100/
+.fseventsd/
+.Spotlight-V100/
+.Trashes/
+.TemporaryItems/
+.metadata_never_index
+
+# -----------------------
+# VS Code
+# -----------------------
+.vscode/
+*.code-workspace
+
+# -----------------------
+# Docker
+# -----------------------
+docker-compose.override.yml
+*.log
+*.pid
+*.sock
+*.tmp
+
+# Docker volumes / temp
+docker-volume-*/ 
+
+# -----------------------
+# Git
+# -----------------------
+*.orig
+*.rej
+*.bak
+
+# -----------------------
+# Other temp files
+# -----------------------
+*.swp
+*.swo
+*.tmp
+*.backup
+*.cache
+*.bak
