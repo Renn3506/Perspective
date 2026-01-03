@@ -1,4 +1,4 @@
-# News Aggregator & Synthesis Project
+# Perspective: A global news aggregation and sythesis system
 
 ## Overview
 
@@ -21,32 +21,32 @@ Future weeks will expand this to:
 ---
 
 ## Repo Structure
-
+<pre>
 news-synthesis/
 ├── backend/
-│ ├── week1_test.py # Week 1: fetch and insert article
+│ ├── week1_test.py               # Week 1: fetch and insert article
 │ ├── requirements.txt
-│ ├── config.py # DB/API configurations
-│ ├── utils/ # helper functions
+│ ├── config.py                     # DB/API configurations
+│ ├── utils/                         # helper functions
 │ │ └── init.py
-│ ├── ingestion/ # news ingestion scripts
+│ ├── ingestion/                     # news ingestion scripts
 │ │ └── init.py
-│ ├── processing/ # clustering / embeddings (future)
+│ ├── processing/                     # clustering / embeddings (future)
 │ │ └── init.py
-│ ├── synthesis/ # AI summarization (future)
+│ ├── synthesis/                       # AI summarization (future)
 │ │ └── init.py
-│ └── db/ # database scripts / migrations
+│ └── db/                           # database scripts / migrations
 │ └── migrations/
-├── frontend/ # Next.js app
+├── frontend/                       # Next.js app
 ├── docker/
-│ └── docker-compose.yml # PostgreSQL container
+│ └── docker-compose.yml             # PostgreSQL container
 ├── docs/
 │ ├── architecture.md
 │ └── ethics.md
 ├── .gitignore
 ├── README.md
 └── LICENSE
-
+</pre>
 ---
 
 ## Getting Started
