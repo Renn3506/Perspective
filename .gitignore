@@ -65,3 +65,9 @@ docker-volume-*/
 *.backup
 *.cache
 *.bak
+
+# -----------------------
+# Sensitive files
+# -----------------------
+config.py
+secrets.py
