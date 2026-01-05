@@ -1,119 +1,135 @@
-# Perspective: A global news aggregation and sythesis system
+# Perspective: A global news aggregation and synthesis system
 
 ## Overview
 
-This project is currently a prototype system that gathers news from multiple sources around the world, organizes articles by topics, and eventually uses AI to generate objective, easy-to-read summaries.  
+This project is a system that ingests news articles from multiple publishers covering the same or related events. Each article is normalised into a shared schema, parsed, and analysed to extract factual claims, contextual details, and metadata.
 
-The goal of **Week 1** is to set up a working pipeline that:
+The system separates:
+- verifiable facts
+- interpretations or analytical statements
+- opinionated or value-laden language
 
-1. Runs a PostgreSQL database in Docker
-2. Fetches a single article from a news API
-3. Stores the article in the database
+Extracted facts are aligned and compared across sources to identify:
+- consensus facts (widely shared)
+- selectively included facts
+- omitted facts
+- framing differences
+- linguistic bias
+- structural bias (headline choice, ordering, emphasis, sourcing)
 
-Future weeks will expand this to:
-
-- Ingest multiple sources (RSS and APIs)
-- Detect duplicate stories and cluster them
-- Group clusters into high-level topics
-- Generate AI-based summaries
-- Provide a frontend to view summaries and source transparency
+The system then enters a synthesis phase. This phase uses an AI model or other LLM as a controlled generation component, not as a source of truth. The primary goal is to improve media literacy and critical reading skills by helping users understand how narratives are shaped, how bias appears through omission, emphasis, and language, and how different outlets construct meaning from the same underlying events.
 
 ---
 
 ## Repo Structure
-<pre>
-news-synthesis/
-├── backend/
-│ ├── week1_test.py               # Week 1: fetch and insert article
-│ ├── requirements.txt
-│ ├── config.py                     # DB/API configurations
-│ ├── utils/                         # helper functions
-│ │ └── init.py
-│ ├── ingestion/                     # news ingestion scripts
-│ │ └── init.py
-│ ├── processing/                     # clustering / embeddings (future)
-│ │ └── init.py
-│ ├── synthesis/                       # AI summarization (future)
-│ │ └── init.py
-│ └── db/                           # database scripts / migrations
-│ └── migrations/
-├── frontend/                       # Next.js app
-├── docker/
-│ └── docker-compose.yml             # PostgreSQL container
-├── docs/
-│ ├── architecture.md
-│ └── ethics.md
+```
+.
+├── .env.example
 ├── .gitignore
 ├── README.md
-└── LICENSE
-</pre>
+├── backend
+│   ├── config.py
+│   ├── db
+│   │   ├── migrations
+│   │   │   └── 0001_add_url_to_article.py
+│   │   └── run_migrations.py
+│   ├── ingestion
+│   │   ├── base.py
+│   │   ├── newsapi.py
+│   │   ├── run.py
+│   │   └── sources.py
+│   ├── processing
+│   ├── requirements.in
+│   ├── requirements.txt
+│   └── synthesis
+├── docker
+│   └── docker-compose.yml
+├── docs
+│   ├── architecture.md
+│   └── ethics.md
+└── frontend
+```
+
 ---
 
 ## Getting Started
 
-### Prerequisites (Will change as project grows)
+### Prerequisites
 
 - Python 3.10 or later
 - Docker Desktop
-- VS Code (recommended)
 - News API key (e.g., from [NewsAPI.org](https://newsapi.org))
+
+### 1. Start PostgreSQL in Docker
+
+From the `docker/` folder:
+```bash
+docker-compose up -d
+```
+
+### 2. Set up the Environment
+
+1.  **Create a virtual environment:**
+    ```bash
+    python3 -m venv .venv
+    source .venv/bin/activate
+    ```
+2.  **Install dependencies:**
+    ```bash
+    pip install -r backend/requirements.txt
+    ```
+3.  **Configure environment variables:**
+    Create a `.env` file in the project root by copying the example file:
+    ```bash
+    cp .env.example .env
+    ```
+    Then, edit the `.env` file to add your `NEWS_API_KEY` and any other custom settings.
+
+### 3. Run Database Migrations
+
+From the project root, run the migration script to set up the database schema:
+```bash
+python backend/db/run_migrations.py
+```
+
+### 4. Run the Ingestion Pipeline
+
+To fetch and store news articles, run the ingestion script:
+```bash
+python backend/ingestion/run.py
+```
+
+### 5. Verify in Database
+
+You can connect to the database to verify that the articles have been inserted:
+```bash
+docker exec -it perspective-db-1 psql -U perspective_user -d perspective_db
+```
+Then, inside PostgreSQL:
+```sql
+SELECT * FROM article;
+```
+*Note: The container name `perspective-db-1` might vary. Use `docker ps` to find the correct name of your PostgreSQL container.*
 
 ---
 
-### Step 1: Start PostgreSQL in Docker
+## Project State and Roadmap
 
-From the `docker/` folder:
+The project is currently in the early stages of development. Here is a summary of the current state and the objectives for the next phase.
 
-docker compose up -d
+### Current State (Week 2 Complete)
+- Multi-source article ingestion is implemented.
+- Content is normalised into a unified data model.
+- Basic fact extraction is functional.
+- Source metadata (publisher, date, region, political leaning where available) is attached.
+- Initial tone and framing analysis exists but is incomplete.
 
-#### Check it’s running:
+### Next Phase Objectives (Week 3+)
+The next phase focuses on depth, reliability, and rigor:
 
-docker ps
-
-#### Step 2: Install Python Dependencies
-
-From the backend/ folder:
-
-pip install -r requirements.txt
-
-#### Step 3: Configure API Key
-
-Edit backend/config.py:
-
-NEWS_API_KEY = "your_api_key_here"
-DB_HOST = "localhost"
-DB_NAME = "news_db"
-DB_USER = "news_user"
-DB_PASS = "news_pass"
-DB_PORT = 5432
-
-
-#### Step 4: Run Week 1 Script
-
-python week1_test.py
-
-You should see:
-
-Connected and table created.
-Article inserted.
-
-#### Step 5: Verify in Database
-
-docker exec -it news_postgres psql -U news_user -d news_db
-Then inside PostgreSQL:
-
-SELECT * FROM articles;
-You should see your inserted article.
-
-### Weekly Roadmap
-
-Week	Goal / Deliverable
-1	Database + single news API fetch working
-2	Ingestion repeatable, multiple articles inserted automatically
-3-4	Add more sources (RSS, APIs), implement simple de-duplication
-5-6	Story clustering logic, first topic groups
-7-8	AI synthesis pipeline for one topic
-9-10	FastAPI backend + simple frontend (Next.js)
-11-12	Code polish, bias indicators, documentation, ethical transparency
-
-Each week builds on the previous, gradually increasing complexity while keeping systems clean and reproducible.
+1. **Fact alignment and clustering**: Deduplicate equivalent facts and group facts referring to the same real-world event.
+2. **Omission detection**: Identify facts present in some sources but absent in others.
+3. **Fact vs interpretation separation**: Classify sentences into factual, interpretive, or opinionated categories.
+4. **Transparent article generation**: Produce a neutral, composite article using only verified facts.
+5. **Bias and framing analysis**: Provide a separate explanatory section detailing framing differences, language choices, and omission patterns.
+6. **Evaluation and critique**: Identify weaknesses or ambiguity in the system’s own outputs.

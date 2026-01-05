@@ -1,0 +1,6 @@
+requests
+psycopg2-binary
+alembic
+sqlalchemy
+python-dotenv
+redis

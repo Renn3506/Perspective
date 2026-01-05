@@ -1,17 +1,71 @@
 version: "3.9"
 
 services:
-  db: 
+  db:
     image: postgres:13
-    container_name: perspective_week1_postgres 
-    environment: 
-      POSTGRES_USER: perspective_user
-      POSTGRES_PASSWORD: perspective_pass
-      POSTGRES_DB: perspective_db
+    container_name: perspective_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
     ports:
-      - "5432:5432"
-    volumes: 
+      - "${DB_PORT}:5432"
+    volumes:
       - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$DB_USER -d $$DB_NAME"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - perspective_net
+
+  redis:
+    image: redis:7-alpine
+    container_name: perspective_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - perspective_net
+
+  ingestion_service:
+    build:
+      context: ../backend
+      dockerfile: ingestion_service/Dockerfile
+    container_name: perspective_ingestion_service
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    env_file:
+      - ../.env
+    networks:
+      - perspective_net
+
+  synthesis_service:
+    build:
+      context: ../backend
+      dockerfile: synthesis_service/Dockerfile
+    container_name: perspective_synthesis_service
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    env_file:
+      - ../.env
+    networks:
+      - perspective_net
+    ports:
+      - "8000:8000"
 
 volumes:
   db_data:
+
+networks:
+  perspective_net:
