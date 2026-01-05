@@ -27,27 +27,41 @@ The system then enters a synthesis phase. This phase uses an AI model or other L
 ├── .env.example
 ├── .gitignore
 ├── README.md
+├── alembic.ini
 ├── backend
-│   ├── config.py
-│   ├── db
-│   │   ├── migrations
-│   │   │   └── 0001_add_url_to_article.py
-│   │   └── run_migrations.py
-│   ├── ingestion
+│   ├── __init__.py
+│   ├── alembic                         # Alembic migration environment
+│   │   ├── versions                    # Migration scripts
+│   │   │   └── <migration_id>_initial_migration.py
+│   │   ├── env.py
+│   │   └── script.py.mako
+│   ├── common                          # Shared code (DB models, queue utilities)
+│   │   ├── __init__.py
+│   │   ├── db
+│   │   │   ├── __init__.py
+│   │   │   └── models.py
+│   │   ├── json_encoder.py
+│   │   └── queue.py
+│   ├── ingestion_service               # Service for fetching and queuing articles
+│   │   ├── Dockerfile
+│   │   ├── __init__.py
 │   │   ├── base.py
 │   │   ├── newsapi.py
 │   │   ├── run.py
 │   │   └── sources.py
-│   ├── processing
-│   ├── requirements.in
-│   ├── requirements.txt
-│   └── synthesis
+│   ├── processing                      # Placeholder for future processing logic
+│   ├── requirements.txt                # Pinned Python dependencies
+│   ├── synthesis                       # Placeholder for future synthesis logic
+│   └── synthesis_service               # Service for consuming articles and initial DB storage
+│       ├── Dockerfile
+│       ├── __init__.py
+│       └── run.py
 ├── docker
-│   └── docker-compose.yml
+│   └── docker-compose.yml              # Docker Compose setup
 ├── docs
 │   ├── architecture.md
 │   └── ethics.md
-└── frontend
+└── frontend                            # Placeholder for future frontend
 ```
 
 ---
@@ -60,21 +74,22 @@ The system then enters a synthesis phase. This phase uses an AI model or other L
 - Docker Desktop
 - News API key (e.g., from [NewsAPI.org](https://newsapi.org))
 
-### 1. Start PostgreSQL in Docker
+### 1. Start Docker Services
 
-From the `docker/` folder:
+From the project root:
 ```bash
-docker-compose up -d
+docker-compose -f docker/docker-compose.yml up --build -d
 ```
+This will build and start the PostgreSQL database, Redis, the ingestion service, and the synthesis service.
 
-### 2. Set up the Environment
+### 2. Set up the Environment (for local development/Alembic)
 
-1.  **Create a virtual environment:**
+1.  **Create and activate a virtual environment:**
     ```bash
     python3 -m venv .venv
     source .venv/bin/activate
     ```
-2.  **Install dependencies:**
+2.  **Install Python dependencies:**
     ```bash
     pip install -r backend/requirements.txt
     ```
@@ -87,29 +102,31 @@ docker-compose up -d
 
 ### 3. Run Database Migrations
 
-From the project root, run the migration script to set up the database schema:
+From the project root, apply the Alembic migrations to set up the database schema:
 ```bash
-python backend/db/run_migrations.py
+source .venv/bin/activate # Activate virtual environment if not already active
+python -m alembic -c alembic.ini upgrade head
+```
+This will create tables for articles, sources, facts, and alignments in your PostgreSQL database.
+
+### 4. Monitor the Ingestion and Synthesis
+
+The `ingestion_service` automatically fetches articles and publishes them to Redis, and the `synthesis_service` consumes these articles and stores them in the database. You can view the logs of all services:
+```bash
+docker-compose -f docker/docker-compose.yml logs -f
 ```
 
-### 4. Run the Ingestion Pipeline
+### 5. Verify Data Ingestion (Optional)
 
-To fetch and store news articles, run the ingestion script:
+You can connect to the PostgreSQL database container and inspect the tables:
 ```bash
-python backend/ingestion/run.py
+docker exec -it perspective_postgres psql -U perspective_user -d perspective_db
 ```
-
-### 5. Verify in Database
-
-You can connect to the database to verify that the articles have been inserted:
-```bash
-docker exec -it perspective-db-1 psql -U perspective_user -d perspective_db
-```
-Then, inside PostgreSQL:
+Then, inside the `psql` prompt:
 ```sql
-SELECT * FROM article;
+SELECT id, title, url, published_at, source_id FROM article LIMIT 5;
+SELECT id, name, url FROM source LIMIT 5;
 ```
-*Note: The container name `perspective-db-1` might vary. Use `docker ps` to find the correct name of your PostgreSQL container.*
 
 ---
 
@@ -118,8 +135,8 @@ SELECT * FROM article;
 The project is currently in the early stages of development. Here is a summary of the current state and the objectives for the next phase.
 
 ### Current State (Week 2 Complete)
-- Multi-source article ingestion is implemented.
-- Content is normalised into a unified data model.
+- Multi-source article ingestion is implemented and processes articles through a Redis queue.
+- Content is normalised into a unified data model and stored in PostgreSQL.
 - Basic fact extraction is functional.
 - Source metadata (publisher, date, region, political leaning where available) is attached.
 - Initial tone and framing analysis exists but is incomplete.
