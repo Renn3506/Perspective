@@ -1,6 +1,34 @@
-requests
-psycopg2-binary
-alembic
+# -----------------------
+# Core ML / NLP
+# -----------------------
+sentence-transformers
+transformers
+torch
+
+# -----------------------
+# Clustering
+# -----------------------
+hdbscan
+
+# -----------------------
+# Data / math
+# -----------------------
+numpy
+scikit-learn
+scipy
+
+# -----------------------
+# Backend / infra
+# -----------------------
 sqlalchemy
-python-dotenv
+alembic
+psycopg2-binary
 redis
+python-dotenv
+requests
+
+# -----------------------
+# Utilities
+# -----------------------
+tqdm
+pyyaml

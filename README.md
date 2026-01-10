@@ -49,7 +49,11 @@ The system then enters a synthesis phase. This phase uses an AI model or other L
 │   │   ├── newsapi.py
 │   │   ├── run.py
 │   │   └── sources.py
-│   ├── processing                      # Placeholder for future processing logic
+│   ├── processing                      # Service for background processing tasks
+│   │   ├── Dockerfile                  # Dockerfile for the processing service
+│   │   ├── __init__.py
+│   │   ├── cluster.py                  # Logic for fact clustering
+│   │   └── run.py                      # Entrypoint for the processing service
 │   ├── requirements.txt                # Pinned Python dependencies
 │   ├── synthesis                       # Placeholder for future synthesis logic
 │   └── synthesis_service               # Service for consuming articles and initial DB storage
@@ -70,7 +74,7 @@ The system then enters a synthesis phase. This phase uses an AI model or other L
 
 ### Prerequisites
 
-- Python 3.10 or later
+- Python 3.12 or later
 - Docker Desktop
 - News API key (e.g., from [NewsAPI.org](https://newsapi.org))
 
@@ -80,7 +84,7 @@ From the project root:
 ```bash
 docker-compose -f docker/docker-compose.yml up --build -d
 ```
-This will build and start the PostgreSQL database, Redis, the ingestion service, and the synthesis service.
+This will build and start the PostgreSQL database, Redis, the ingestion service, the synthesis service, and the processing service.
 
 ### 2. Set up the Environment (for local development/Alembic)
 
@@ -134,19 +138,18 @@ SELECT id, name, url FROM source LIMIT 5;
 
 The project is currently in the early stages of development. Here is a summary of the current state and the objectives for the next phase.
 
-### Current State (Week 2 Complete)
+### Current State (Week 3 Complete)
 - Multi-source article ingestion is implemented and processes articles through a Redis queue.
 - Content is normalised into a unified data model and stored in PostgreSQL.
 - Basic fact extraction is functional.
 - Source metadata (publisher, date, region, political leaning where available) is attached.
-- Initial tone and framing analysis exists but is incomplete.
+- **Fact alignment and clustering**: A `processing_service` has been implemented to perform fact clustering. It uses `sentence-transformers` to generate semantic embeddings for facts and `HDBSCAN` to group similar facts together. The cluster assignments are stored in the `alignment` table.
 
-### Next Phase Objectives (Week 3+)
+### Next Phase Objectives (Week 4+)
 The next phase focuses on depth, reliability, and rigor:
 
-1. **Fact alignment and clustering**: Deduplicate equivalent facts and group facts referring to the same real-world event.
-2. **Omission detection**: Identify facts present in some sources but absent in others.
-3. **Fact vs interpretation separation**: Classify sentences into factual, interpretive, or opinionated categories.
-4. **Transparent article generation**: Produce a neutral, composite article using only verified facts.
-5. **Bias and framing analysis**: Provide a separate explanatory section detailing framing differences, language choices, and omission patterns.
-6. **Evaluation and critique**: Identify weaknesses or ambiguity in the system’s own outputs.
+1. **Omission detection**: Identify facts present in some sources but absent in others.
+2. **Fact vs interpretation separation**: Classify sentences into factual, interpretive, or opinionated categories.
+3. **Transparent article generation**: Produce a neutral, composite article using only verified facts.
+4. **Bias and framing analysis**: Provide a separate explanatory section detailing framing differences, language choices, and omission patterns.
+5. **Evaluation and critique**: Identify weaknesses or ambiguity in the system’s own outputs.

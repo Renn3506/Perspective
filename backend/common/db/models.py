@@ -7,6 +7,7 @@ from sqlalchemy import (
     Text,
     create_engine,
 )
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import declarative_base, relationship
 
 Base = declarative_base()
@@ -42,6 +43,11 @@ class Fact(Base):
     id = Column(Integer, primary_key=True)
     article_id = Column(Integer, ForeignKey("article.id"), nullable=False)
     text = Column(Text, nullable=False)
+    source_text = Column(Text)
+    confidence = Column(Integer, default=0)
+    entities = Column(JSONB)
+    relationships = Column(JSONB)
+    metadata_ = Column(JSONB)
 
     article = relationship("Article", back_populates="facts")
     alignments = relationship("Alignment", back_populates="fact")

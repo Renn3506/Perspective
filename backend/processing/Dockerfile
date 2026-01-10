@@ -14,11 +14,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY common/ /app/common/
-COPY ingestion_service/ /app/ingestion_service/
+COPY processing/ /app/processing/
 
 # Optional: create non-root user
 RUN useradd -m appuser
 USER appuser
 
 # Explicit entrypoint
-CMD ["python", "-m", "ingestion_service.run"]
+CMD ["python", "-m", "processing.run"]

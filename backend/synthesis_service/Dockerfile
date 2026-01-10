@@ -1,6 +1,6 @@
 # Use an official Python runtime as a parent image
 # Users can change this to a different Python version or base image if preferred.
-FROM python:3.10-slim
+FROM python:3.12.10-slim
 
 # Prevent Python from buffering stdout/stderr
 ENV PYTHONUNBUFFERED=1

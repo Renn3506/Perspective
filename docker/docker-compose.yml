@@ -64,6 +64,23 @@ services:
     ports:
       - "8000:8000"
 
+  processing_service:
+    build:
+      context: ../backend
+      dockerfile: processing/Dockerfile
+    container_name: perspective_processing_service
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    env_file:
+      - ../.env
+    networks:
+      - perspective_net
+
+
 volumes:
   db_data:
 
