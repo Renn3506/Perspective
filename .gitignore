@@ -67,6 +67,7 @@ docker-volume-*/
 *.backup
 *.cache
 *.bak
+CLUSTERING_ISSUES_FIXED.md
 
 # -----------------------
 # Sensitive files
