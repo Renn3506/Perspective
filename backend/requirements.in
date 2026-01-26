@@ -26,6 +26,10 @@ psycopg2-binary
 redis
 python-dotenv
 requests
+fastapi
+uvicorn
+python-multipart
+pydantic
 
 # -----------------------
 # Utilities

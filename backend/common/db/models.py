@@ -1,6 +1,7 @@
 from sqlalchemy import (
     Column,
     DateTime,
+    Float,
     ForeignKey,
     Integer,
     String,
@@ -22,6 +23,10 @@ class Article(Base):
     url = Column(String, nullable=False, unique=True)
     published_at = Column(DateTime, nullable=False)
     source_id = Column(Integer, ForeignKey("source.id"), nullable=False)
+    summary = Column(Text)
+    tone = Column(String)
+    tone_confidence = Column(Float)
+    flesch_kincaid_grade = Column(Float)
 
     source = relationship("Source", back_populates="articles")
     facts = relationship("Fact", back_populates="article")

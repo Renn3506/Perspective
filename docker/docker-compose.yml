@@ -80,6 +80,22 @@ services:
     networks:
       - perspective_net
 
+  api_service:
+    build:
+      context: ../backend
+      dockerfile: api_service/Dockerfile
+    container_name: perspective_api_service
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - ../.env
+    networks:
+      - perspective_net
+    ports:
+      - "8001:8001"
+
 
 volumes:
   db_data:

@@ -14,7 +14,10 @@ __pycache__/
 venv/
 .env/
 .env.*
+.env.local
 .env
+.env.production
+.env.development
 .venv/
 
 # -----------------------
@@ -68,9 +71,20 @@ docker-volume-*/
 *.cache
 *.bak
 CLUSTERING_ISSUES_FIXED.md
+perspective_frontend_&_api.plan.md
 
 # -----------------------
 # Sensitive files
 # -----------------------
 config.py
 secrets.py
+
+
+# -----------------------
+# Node modules
+# -----------------------
+node_modules/
+.next/
+
+
+.DS_Store
